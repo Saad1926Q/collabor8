@@ -5,3 +5,5 @@
 Our goal is to create a modern tool that simplifies teamwork and enhances productivity in coding.
 
 Stay tuned for updates as Collabor8 comes to life!
+
+---
