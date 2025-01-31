@@ -10,7 +10,7 @@ Stay tuned for updates as Collabor8 comes to life!
 
 ## Contributors
 
-Thanks to all the amazing contributors who made this project possible!
+Thanks to all the amazing contributors!
 
 <a href="https://github.com/saad1926q/collabor8/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=saad1926q/collabor8" />
