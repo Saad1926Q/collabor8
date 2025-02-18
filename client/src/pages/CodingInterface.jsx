@@ -1,32 +1,12 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import Editor from "@monaco-editor/react";
 
 const CodingInterface = () => {
-  const [code, setCode] = useState(`console.log('Hello, world!');var solutions = [];
-var target = 0;
-nums.sort(function(a, b) {
-    return a - b;
-});for(var i = 0; i < nums.length - 1 && nums[i] <= 0; i++) {
-    if(nums[i] === nums[i - 1]) continue; // continue means skip 
-    var hash = {};
-    for(var j = i + 1; j < nums.length; j++) {
-        if(hash[target - nums[i] - nums[j]] === undefined){
-            hash[nums[j]] = 1;
-        }else{
-          hash[target - nums[i] - nums[j]]++;
-          if(hash[target - nums[i] - nums[j]] >  2){
+  const [fileStructure, setFileStructure] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [code, setCode] = useState("");
+  const [repoName, setRepoName] = useState("");
 
-          }else{
-              solutions.push([nums[i], target - nums[i] - nums[j], nums[j]]);
-          }
-        }
-    }
-    console.log(hash);
-}
-return solutions;
- `);
-
-  const files = ["index.js", "styles.css", "README.md"];
   const users = ["Ayan Alam", "Saboor", "Sameer","Ali","Saad"];
   const messages = [
     { user: "Ayan Alam", text: "I've updated the API endpoint." },
@@ -35,6 +15,36 @@ return solutions;
     { user: "Saad", text: "Someone review the pull request." },
     { user: "Ali", text: "On it." },
   ];
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/git/structure")
+      .then((res) => res.json())
+      .then((data) => {
+        setFileStructure(data.structure);
+        setRepoName(data.repoName);
+      })
+      .catch((err) => console.error("Error fetching repo structure:", err));
+  }, []);
+
+  const renderFileStructure = (files) => {
+    return files.map((file, index) => (
+      <li key={index} className="py-1 px-2 rounded hover:bg-gray-700 cursor-pointer" onClick={() => file.type === "file" && handleFileClick(file.path)}>
+        {file.type === "folder" ? "📂 " : "📄 "} {file.name}
+      </li>
+    ));
+  };
+
+  const handleFileClick = (filePath) => {
+    fetch(`http://localhost:5000/api/git/file?repoName=myRepoName&filePath=${filePath}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data.content);  // Log the file content to console
+        setCode(data.content);  // Set code for editor (optional)
+        setSelectedFile(filePath);
+      })
+      .catch((err) => console.error("Error loading file:", err));
+  };
+  
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
@@ -52,11 +62,7 @@ return solutions;
         <aside className="w-1/5 bg-gray-800 p-4 border-r border-gray-700">
           <h3 className="text-lg font-bold mb-4">Files</h3>
           <ul>
-            {files.map((file, index) => (
-              <li key={index} className="py-1 px-2 rounded hover:bg-gray-700">
-                {file}
-              </li>
-            ))}
+            {renderFileStructure(fileStructure)}
           </ul>
         </aside>
 

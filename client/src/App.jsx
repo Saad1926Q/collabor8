@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp'
+import RepoClone from './components/RepoClone';
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="/settings" element={<Settings />} />
 
         <Route path="/code" element={<CodingInterface />} />
+        <Route path="/test" element={< RepoClone />} />
       </Routes>
     </Router>
   );
