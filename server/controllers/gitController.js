@@ -30,40 +30,55 @@ const cloneRepo = async (req, res) => {
   }
 };
 
-const getRepoStructure = async (req, res) => {
-    try {
-      const { repoName } = req.params;
-      const targetDir = path.join(__dirname, "../cloned_repos", repoName);
+const getRepoStructure = (req, res) => {
+  const clonedReposDir = path.join(__dirname, "../cloned_repos");
+
+  const repoName = fs.readdirSync(clonedReposDir).find((name) => 
+    fs.statSync(path.join(clonedReposDir, name)).isDirectory()
+  );
   
-      if (!fs.existsSync(targetDir)) {
-        return res.status(404).json({ error: "Repository not found" });
-      }
-  
-      const getStructure = (dir) => {
-        const files = fs.readdirSync(dir);
-        return files.map((file) => {
-          const filePath = path.join(dir, file);
-          const stat = fs.statSync(filePath);
-          if (stat.isDirectory()) {
-            return { name: file, type: "folder", path: filePath, children: getStructure(filePath) };
-          } else {
-            return { name: file, type: "file", path: filePath };
-          }
-        });
-      };
-  
-      const structure = getStructure(targetDir);
-      res.json({ structure });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Failed to fetch repository structure" });
-    }
+  if (!repoName) {
+    return res.status(404).json({ error: "No repository found" });
+  }
+    const targetDir = path.join(__dirname, "../cloned_repos", repoName); // Use dynamic repo name
+
+  const getFilesRecursively = (dir) => {
+    return fs.readdirSync(dir, { withFileTypes: true })
+      .filter(dirent => !dirent.name.startsWith(".")) // Ignore hidden files (like .git)
+      .map(dirent => {
+        const fullPath = path.join(dir, dirent.name);
+        return dirent.isDirectory()
+          ? { name: dirent.name, type: "folder", children: getFilesRecursively(fullPath) }
+          : { name: dirent.name, type: "file", path: fullPath };
+      });
   };
+
+  try {
+    if (!fs.existsSync(targetDir)) {
+      return res.status(404).json({ error: "Repository not found" });
+    }
+
+    const structure = getFilesRecursively(targetDir);
+    res.json({ structure, repoName });
+  } catch (error) {
+    console.error("Error reading repo structure:", error);
+    res.status(500).json({ error: "Failed to fetch repo structure" });
+  }
+};
   
   // Get file content
   const getFileContent = async (req, res) => {
     try {
-      const { repoName, filePath } = req.query;
+      const clonedReposDir = path.join(__dirname, "../cloned_repos");
+
+      const repoName = fs.readdirSync(clonedReposDir).find((name) => 
+        fs.statSync(path.join(clonedReposDir, name)).isDirectory()
+      );
+      
+      if (!repoName) {
+        return res.status(404).json({ error: "No repository found" });
+      }
+      const { filePath } = req.query;
       const targetDir = path.join(__dirname, "../cloned_repos", repoName);
       const fileFullPath = path.join(targetDir, filePath);
   
