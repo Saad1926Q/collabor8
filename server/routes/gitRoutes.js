@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post("/clone", cloneRepo);
 
-router.get("/structure/:repoName", getRepoStructure);
+router.get("/structure", getRepoStructure);
 
 // Route to get file content
 router.get("/file", getFileContent);

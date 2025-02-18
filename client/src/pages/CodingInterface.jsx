@@ -6,6 +6,9 @@ const CodingInterface = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [code, setCode] = useState("");
   const [repoName, setRepoName] = useState("");
+  const [showCloneModal, setShowCloneModal] = useState(false);
+  const [repoUrl, setRepoUrl] = useState("");
+  const [cloneMessage, setCloneMessage] = useState("");
 
   const users = ["Ayan Alam", "Saboor", "Sameer","Ali","Saad"];
   const messages = [
@@ -17,21 +20,64 @@ const CodingInterface = () => {
   ];
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/git/structure")
+    fetch(`http://localhost:5000/api/git/structure`)
       .then((res) => res.json())
       .then((data) => {
-        setFileStructure(data.structure);
-        setRepoName(data.repoName);
+        if (data.structure.length === 0) {
+          setShowCloneModal(true); // No repo found, show the modal
+        } else {
+          setFileStructure(data.structure);
+          setRepoName(data.repoName);
+        }
       })
-      .catch((err) => console.error("Error fetching repo structure:", err));
+      .catch((err) => {
+        console.error("Error fetching repo structure:", err);
+        setShowCloneModal(true); // Show modal if an error occurs (e.g., repo folder doesn't exist)
+      });
   }, []);
 
-  const renderFileStructure = (files) => {
-    return files.map((file, index) => (
-      <li key={index} className="py-1 px-2 rounded hover:bg-gray-700 cursor-pointer" onClick={() => file.type === "file" && handleFileClick(file.path)}>
-        {file.type === "folder" ? "📂 " : "📄 "} {file.name}
-      </li>
-    ));
+
+  const handleClone = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/git/clone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repoUrl }),
+      });
+
+      const data = await response.json();
+      setCloneMessage(data.message || data.error);
+
+      if (response.ok) {
+        setShowCloneModal(false); // Hide modal
+        window.location.reload(); // Reload to fetch new repo structure
+      }
+    } catch (error) {
+      console.error("Error cloning repo:", error);
+      setCloneMessage("Failed to clone repository.");
+    }
+  };
+  
+
+  const renderFileStructure = (files, level = 0) => {
+    if (!files || !Array.isArray(files)) {
+      return <div>No files available</div>;
+  }
+
+    return (
+      <ul className={`pl-${level * 4}`}>
+        {files.map((file, index) => (
+          <li key={index} className="py-1 px-2 rounded hover:bg-gray-700 cursor-pointer">
+            <span onClick={() => file.type === "file" && handleFileClick(file.path)}>
+              {file.type === "folder" ? "📂 " : "📄 "} {file.name}
+            </span>
+  
+            {/* If the file is a folder, render its children recursively */}
+            {file.type === "folder" && file.children && renderFileStructure(file.children, level + 1)}
+          </li>
+        ))}
+      </ul>
+    );
   };
 
   const handleFileClick = (filePath) => {
@@ -48,41 +94,60 @@ const CodingInterface = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <header className="flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700">
-      <a href="/" className="text-xl font-bold text-blue-500">Collabor8</a>
-      <div>
-          <button className="bg-green-500 px-4 py-2 rounded mr-2">Connected</button>
-          <button className="bg-gray-700 px-4 py-2 rounded">Share</button>
-        </div>
-      </header>
-
-      <div className="flex flex-1">
-        {/* File Directory */}
-        <aside className="w-1/5 bg-gray-800 p-4 border-r border-gray-700">
-          <h3 className="text-lg font-bold mb-4">Files</h3>
-          <ul>
-            {renderFileStructure(fileStructure)}
-          </ul>
-        </aside>
-
-        {/* Code Editor */}
-        <main className="flex-1 flex flex-col">
-          <Editor
-            height="70vh"
-            theme="vs-dark"
-            defaultLanguage="javascript"
-            defaultValue={code}
-            onChange={(value) => setCode(value)}
-          />
-          <div className="bg-gray-800 text-green-400 p-4 h-24 overflow-auto border-t border-gray-700 font-mono">
-            <p>$ Server started on port 3000</p>
-            <p>&gt; GET / 200 OK - 0.5ms</p>
+      {/* Clone Modal */}
+      {showCloneModal && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-80">
+          <div className="bg-gray-700 p-6 rounded-lg shadow-lg w-1/3">
+            <h2 className="text-lg font-bold mb-4">Clone a GitHub Repository</h2>
+            <input
+              type="text"
+              placeholder="Enter GitHub Repo URL"
+              value={repoUrl}
+              onChange={(e) => setRepoUrl(e.target.value)}
+              className="w-full p-2 mb-4 border rounded bg-gray-800 text-white"
+            />
+            <button onClick={handleClone} className="bg-blue-500 text-white px-4 py-2 rounded">
+              Clone Repository
+            </button>
+            {cloneMessage && <p className="mt-2 text-red-400">{cloneMessage}</p>}
           </div>
-        </main>
+        </div>
+      )}
 
-        {/* User List and Chat */}
-        <aside className="w-1/5 bg-gray-800 p-4 border-l border-gray-700 flex flex-col">
+      {/* Normal Layout */}
+      {!showCloneModal && (
+        <>
+          {/* Header */}
+          <header className="flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700">
+            <a href="/" className="text-xl font-bold text-blue-500">Collabor8</a>
+            <div>
+              <button className="bg-green-500 px-4 py-2 rounded mr-2">Connected</button>
+              <button className="bg-gray-700 px-4 py-2 rounded">Share</button>
+            </div>
+          </header>
+
+          <div className="flex flex-1">
+            {/* File Directory */}
+            <aside className="w-1/5 bg-gray-800 p-4 border-r border-gray-700">
+              <h3 className="text-lg font-bold mb-4">Files</h3>
+              {renderFileStructure(fileStructure)}
+            </aside>
+
+            {/* Code Editor */}
+            <main className="flex-1 flex flex-col">
+              <Editor
+                height="70vh"
+                theme="vs-dark"
+                defaultLanguage="javascript"
+                value={code}
+                onChange={(value) => setCode(value)}
+              />
+              <div className="bg-gray-800 text-green-400 p-4 h-24 overflow-auto border-t border-gray-700 font-mono">
+                <p>$ Server started on port 3000</p>
+                <p>&gt; GET / 200 OK - 0.5ms</p>
+              </div>
+            </main>
+            <aside className="w-1/5 bg-gray-800 p-4 border-l border-gray-700 flex flex-col">
           <h3 className="text-lg font-bold mb-4">Users</h3>
           <ul className="mb-4">
             {users.map((user, index) => (
@@ -105,7 +170,9 @@ const CodingInterface = () => {
             </button>
           </div>
         </aside>
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
