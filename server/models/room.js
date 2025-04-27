@@ -3,11 +3,14 @@ export default (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       leader_id: DataTypes.INTEGER,
       repo_url: DataTypes.STRING,
-      repo_path: DataTypes.TEXT,
       last_opened_file: DataTypes.TEXT,
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
+      },
+      invite_id: {
+        type: DataTypes.STRING(8),  
+        allowNull: false             
       }
     }, {
       tableName: 'rooms',

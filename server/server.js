@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import auth from './routes/auth.js';
 import gitRoutes from './routes/gitRoutes.js';
+import roomRoutes from './routes/roomRoutes.js'
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 // Define routes
 app.use('/api/git', gitRoutes);
 app.use('/api/auth', auth);
+app.use('/api/rooms', roomRoutes);
 
 // Start the server
 app.listen(PORT, () => {

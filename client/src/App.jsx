@@ -6,6 +6,7 @@ import Settings from './pages/Settings';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp'
 import RepoClone from './components/RepoClone';
+import Rooms from './pages/Rooms';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
 
         <Route path="/code" element={<CodingInterface />} />
         <Route path="/test" element={< RepoClone />} />
+        <Route path='/rooms' element={<Rooms/>}/>
       </Routes>
     </Router>
   );
