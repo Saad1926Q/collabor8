@@ -1,11 +1,23 @@
+import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
+
+
 export default (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
       name: DataTypes.STRING,
       github_username: DataTypes.STRING,
-      email: DataTypes.STRING,
-      created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+      email: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
+        validate: { isEmail: true }
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      refreshToken :{
+        type:DataTypes.STRING
       }
     }, {
       tableName: 'users',
