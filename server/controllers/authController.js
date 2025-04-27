@@ -2,6 +2,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import db from '../models/index.js';
 
+import dotenv from 'dotenv';
+dotenv.config();
 
 const User = db.User;
 
@@ -27,6 +29,28 @@ export const register = async(req,res)=>{
 
         //CREATE USER 
 
-        const user = await User.create({})
-    }
+
+        const user = await User.create({
+            name,
+            github_username,
+            email,
+            password: hashedPassword,
+        })
+
+        
+
+        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+        const refreshToken = jwt.sign({ userId: user.id }, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRSH_EXPIRY });
+
+        user.refreshToken = refreshToken;
+        await user.save();
+    
+        res.status(201).json({
+          message: "User registered successfully",
+          token,
+          refreshToken,
+        });
+    }catch (err) {
+        res.status(500).json({ error: "Registration failed", details: err.message });
+      }
 }

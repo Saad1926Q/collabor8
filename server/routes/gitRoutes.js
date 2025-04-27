@@ -1,5 +1,5 @@
-const express = require("express");
-const { cloneRepo,getRepoStructure,getFileContent } = require("../controllers/gitController");
+import express from "express";
+import { cloneRepo, getRepoStructure, getFileContent } from "../controllers/gitController.js";
 
 const router = express.Router();
 
@@ -11,4 +11,4 @@ router.get("/structure", getRepoStructure);
 router.get("/file", getFileContent);
 
 
-module.exports = router;
+export default router;
