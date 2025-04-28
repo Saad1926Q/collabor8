@@ -2,7 +2,10 @@ import About from "../components/About";
 import Features from "../components/Features";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
+import { io } from 'socket.io-client';
 import Navbar from "../components/Navbar";
+
+const socket = io('http://localhost:5000'); 
 
 const Home = () => {
   return (
