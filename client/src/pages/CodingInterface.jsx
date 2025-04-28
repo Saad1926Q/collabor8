@@ -486,6 +486,7 @@ const CodingInterface = () => {
 
   const handleFileClick = (filePath) => {
     const encodedFilePath = encodeURIComponent(filePath);
+
     const token = localStorage.getItem("token");
   
     axios.get(`http://localhost:5001/api/git/file/${roomId}?filePath=${encodedFilePath}`, {
@@ -509,6 +510,7 @@ const CodingInterface = () => {
       })
       .catch((err) => console.error("Error loading file:", err));
   };
+  
 
   const handleEditorDidMount = (editor) => {
     editorRef.current = editor;
