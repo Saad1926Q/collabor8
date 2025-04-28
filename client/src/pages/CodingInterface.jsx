@@ -29,6 +29,7 @@ const CodingInterface = () => {
         } else {
           setFileStructure(data.structure);
           setRepoName(data.repoName);
+          console.log(data)
         }
       })
       .catch((err) => {
@@ -59,16 +60,9 @@ const CodingInterface = () => {
   };
 
   const handleFileClick = (filePath) => {
-    const repoIndex = filePath.indexOf(repoName);
-    if (repoIndex === -1) {
-      console.error("Repo name not found in path:", filePath);
-      return;
-    }
-
-    const relativeFilePath = filePath.substring(repoIndex + repoName.length + 1);
-    const encodedFilePath = encodeURIComponent(relativeFilePath);
-
-    fetch(`http://localhost:5000/api/git/file?repoName=myRepoName&filePath=${encodedFilePath}`)
+    const encodedFilePath = encodeURIComponent(filePath);
+  
+    fetch(`http://localhost:5000/api/git/file?filePath=${encodedFilePath}`)
       .then((res) => res.json())
       .then((data) => {
         setCode(data.content);
@@ -76,6 +70,7 @@ const CodingInterface = () => {
       })
       .catch((err) => console.error("Error loading file:", err));
   };
+  
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">

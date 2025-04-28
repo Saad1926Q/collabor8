@@ -54,24 +54,25 @@ const getRepoStructure = (req, res) => {
 
     const targetDir = path.join(clonedReposDir, repoName);
 
-    const getFilesRecursively = (dir) => {
+    const getFilesRecursively = (dir, rootDir) => {
       return fs.readdirSync(dir, { withFileTypes: true })
         .filter(dirent => !dirent.name.startsWith('.'))
         .map(dirent => {
           const fullPath = path.join(dir, dirent.name);
           return dirent.isDirectory()
-            ? { name: dirent.name, type: "folder", children: getFilesRecursively(fullPath) }
-            : { name: dirent.name, type: "file", path: path.relative(targetDir, fullPath) }; // use relative paths
+            ? { name: dirent.name, type: "folder", children: getFilesRecursively(fullPath, rootDir) }
+            : { name: dirent.name, type: "file", path: path.relative(rootDir, fullPath) };
         });
     };
 
-    const structure = getFilesRecursively(targetDir);
+    const structure = getFilesRecursively(targetDir, targetDir);
     res.json({ structure, repoName });
   } catch (error) {
     console.error("Error reading repo structure:", error);
     res.status(500).json({ error: "Failed to fetch repo structure" });
   }
 };
+
 
 const getFileContent = async (req, res) => {
   try {
