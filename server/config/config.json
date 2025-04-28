@@ -1,21 +1,21 @@
 {
   "development": {
     "username": "root",
-    "password": "saad123",
+    "password": "ALIabbas@0",
     "database": "collabor8",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
-    "password": "saad123",
+    "password": "ALIabbas@0",
     "database": "collabor8",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
-    "password": "saad123",
+    "password": "ALIabbas@0",
     "database": "collabor8",
     "host": "127.0.0.1",
     "dialect": "mysql"
