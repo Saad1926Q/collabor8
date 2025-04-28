@@ -4,20 +4,25 @@ import bcrypt from "bcrypt"
 
 export default (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
-      name: DataTypes.STRING,
-      github_username: DataTypes.STRING,
-      email: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: false,
-        validate: { isEmail: true }
-      },
-      password: {
+      name: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      refreshToken :{
-        type:DataTypes.STRING
+      github_username: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      email: {
+        type: DataTypes.STRING,
+        unique: true
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      refreshToken: {
+        type: DataTypes.STRING,
+        allowNull: true
       }
     }, {
       tableName: 'users',
@@ -33,4 +38,3 @@ export default (sequelize, DataTypes) => {
   
     return User;
   };
-  

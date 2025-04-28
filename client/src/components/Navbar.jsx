@@ -11,6 +11,11 @@ export default function Navbar()
                     <li><a href="code" className="hover:text-gray-300">Code</a></li>
                     <li><a href="#features" className="hover:text-gray-300">Features</a></li>
                     <li><a href="#about" className="hover:text-gray-300">About</a></li>
+                    <li>
+                        <a href="/login" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Login
+                        </a>
+                    </li>
                     </ul>
                 </nav>
                 </div>

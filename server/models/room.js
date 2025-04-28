@@ -1,16 +1,17 @@
 export default (sequelize, DataTypes) => {
     const Room = sequelize.define('Room', {
-      name: DataTypes.STRING,
+      name: {
+        type: DataTypes.STRING
+      },
       leader_id: DataTypes.INTEGER,
-      repo_url: DataTypes.STRING,
       last_opened_file: DataTypes.TEXT,
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
       },
       invite_id: {
-        type: DataTypes.STRING(8),  
-        allowNull: false             
+        type: DataTypes.STRING(8),
+        allowNull: false
       }
     }, {
       tableName: 'rooms',
@@ -26,4 +27,3 @@ export default (sequelize, DataTypes) => {
   
     return Room;
   };
-  

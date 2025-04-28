@@ -19,7 +19,7 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/settings" element={<Settings />} />
 
-        <Route path="/code" element={<CodingInterface />} />
+        <Route path="/code/:roomId" element={<CodingInterface />} />
         <Route path="/test" element={< RepoClone />} />
         <Route path='/rooms' element={<Rooms/>}/>
       </Routes>
