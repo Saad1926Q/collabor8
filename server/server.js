@@ -145,7 +145,7 @@ io.on('connection', (socket) => {
   });
   
   // Handle code changes
-  socket.on('code-change', ({ roomId, changes, filename }) => {
+  socket.emit('code-change', ({ roomId, changes, filename }) => {
     if (!roomUsers[roomId] || !roomUsers[roomId][socket.id]) return;
     
     // Store the user's color if not already set
