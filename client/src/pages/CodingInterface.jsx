@@ -6,6 +6,9 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import * as monaco from "monaco-editor";
 
+const socket = io()
+
+
 // Generate a random color for the user
 const getRandomColor = () => {
   const colors = [
