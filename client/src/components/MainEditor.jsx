@@ -9,7 +9,6 @@ const MainEditor = ({ code, onChange, onMount }) => (
       theme="vs-dark"
       defaultLanguage="javascript"
       value={code}
-      onChange={onChange}
       onMount={onMount}
       options={{
         minimap: { enabled: true },

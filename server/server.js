@@ -144,48 +144,6 @@ io.on('connection', (socket) => {
     }
   });
   
-  // Handle code changes
-  socket.emit('code-change', ({ roomId, changes, filename }) => {
-    if (!roomUsers[roomId] || !roomUsers[roomId][socket.id]) return;
-    
-    // Store the user's color if not already set
-    if (!roomUsers[roomId][socket.id].color) {
-      roomUsers[roomId][socket.id].color = getRandomColor();
-    }
-    
-    // Broadcast code changes to other users in the room
-    socket.to(roomId).emit('code-update', {
-      socketId: socket.id,
-      userId: roomUsers[roomId][socket.id].userId,
-      username: roomUsers[roomId][socket.id].username,
-      color: roomUsers[roomId][socket.id].color,
-      changes,
-      filename
-    });
-    
-    // Also send a heartbeat to indicate this user is active
-    io.to(roomId).emit('user-active', {
-      userId: roomUsers[roomId][socket.id].userId,
-      timestamp: Date.now()
-    });
-  });
-  
-  // Helper function to generate a random color
-  function getRandomColor() {
-    const colors = [
-      "#FF5733", // Red
-      "#33FF57", // Green
-      "#3357FF", // Blue
-      "#FF33A8", // Pink
-      "#33FFF5", // Cyan
-      "#F5FF33", // Yellow
-      "#FF8333", // Orange
-      "#8333FF", // Purple
-      "#33FF8B", // Mint
-      "#FF33F5"  // Magenta
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-  }
   
   // Handle chat messages
   socket.on('send-message', async ({ roomId, message }) => {

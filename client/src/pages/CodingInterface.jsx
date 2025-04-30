@@ -166,307 +166,44 @@ const CodingInterface = () => {
         username: userData.name,
         color: userColor
       });
-      
+  
       // Listen for new users joining
       socketRef.current.on('user-joined', (user) => {
         console.log('User joined:', user);
-        userColorsRef.current[user.userId] = user.color;
-        updateCursors();
       });
-      
+  
       // Get current users in the room
       socketRef.current.on('current-users', (users) => {
         console.log('Current users:', users);
-        users.forEach(user => {
-          userColorsRef.current[user.userId] = user.color;
-        });
-        updateCursors();
       });
-      
-      // Listen for cursor updates
-      socketRef.current.on('cursor-update', (data) => {
-        userCursorsRef.current[data.userId] = {
-          position: data.cursor,
-          username: data.username,
-          color: data.color,
-          selection: userCursorsRef.current[data.userId]?.selection
-        };
-        updateCursors();
-      });
-      
-      // Listen for selection updates
-      socketRef.current.on('selection-update', (data) => {
-        if (!userCursorsRef.current[data.userId]) {
-          userCursorsRef.current[data.userId] = {
-            position: { line: 1, column: 1 },
-            username: data.username,
-            color: data.color
-          };
-        }
-        
-        userCursorsRef.current[data.userId].selection = data.selection;
-        updateCursors();
-      });
-      
-      // Listen for code updates
-      socketRef.current.on('code-update', (data) => {
-        if (editorRef.current && selectedFile && data.filename === selectedFile) {
-          // Apply changes to editor
-          const model = editorRef.current.getModel();
-          if (model) {
-            // Track user contributions for this section
-            if (!userContributionsRef.current[selectedFile]) {
-              userContributionsRef.current[selectedFile] = {};
-            }
-            
-            // Update the model with the changes
-            if (data.changes) {
-              // Temporarily remove our own change listener to avoid echo
-              const prevValue = code;
-              setCode(data.changes);
-              
-              // Track which lines were modified by which user
-              const lines = data.changes.split('\n');
-              lines.forEach((line, index) => {
-                userContributionsRef.current[selectedFile][index] = {
-                  userId: data.userId,
-                  username: data.username,
-                  color: data.color
-                };
-              });
-              
-              // Apply decorations for user contributions
-              setTimeout(() => {
-                applyContributionDecorations();
-              }, 50);
-            }
-          }
-        }
-      });
-      
-      // Listen for chat messages
+  
+      // Chat history
       socketRef.current.on('chat-history', (messages) => {
         setMessages(messages);
       });
-      
+  
+      // New chat message
       socketRef.current.on('receive-message', (message) => {
         setMessages(prevMessages => [...prevMessages, message]);
       });
-      
-      // Listen for users leaving
+  
+      // Handle user leave
       socketRef.current.on('user-left', (user) => {
         console.log('User left:', user);
-        delete userCursorsRef.current[user.userId];
-        updateCursors();
       });
     }
-    
+  
     return () => {
       if (socketRef.current) {
         socketRef.current.off('user-joined');
         socketRef.current.off('current-users');
-        socketRef.current.off('cursor-update');
-        socketRef.current.off('code-update');
         socketRef.current.off('chat-history');
         socketRef.current.off('receive-message');
         socketRef.current.off('user-left');
       }
     };
-  }, [socketRef.current, userData, roomId, userColor, selectedFile]);
-
-  // Function to update cursor decorations
-  const updateCursors = () => {
-    if (!editorRef.current) return;
-    
-    // Remove existing decorations
-    decorationsRef.current = editorRef.current.deltaDecorations(
-      decorationsRef.current,
-      []
-    );
-    
-    // Create new decorations for each user's cursor and selections
-    const decorations = [];
-    
-    Object.entries(userCursorsRef.current).forEach(([userId, cursor]) => {
-      const { position, username, color, selection } = cursor;
-      
-      // Add cursor decoration
-      decorations.push({
-        range: new monaco.Range(
-          position.line,
-          position.column,
-          position.line,
-          position.column + 1
-        ),
-        options: {
-          className: 'cursor-decoration',
-          hoverMessage: { value: `${username} is editing` },
-          inlineClassName: `cursor-${userId}`,
-          beforeContentClassName: 'cursor-line',
-          before: {
-            content: '|',
-          },
-          after: {
-            content: username,
-            inlineClassName: 'cursor-label'
-          },
-          minimap: {
-            color: color,
-            position: 2
-          }
-        }
-      });
-      
-      // Add selection decoration if it exists
-      if (selection && 
-          selection.startLineNumber && 
-          selection.startColumn && 
-          selection.endLineNumber && 
-          selection.endColumn) {
-        decorations.push({
-          range: new monaco.Range(
-            selection.startLineNumber,
-            selection.startColumn,
-            selection.endLineNumber,
-            selection.endColumn
-          ),
-          options: {
-            className: `selection-${userId}`,
-            hoverMessage: { value: `Selected by ${username}` },
-            inlineClassName: `selection-inline-${userId}`
-          }
-        });
-      }
-    });
-    
-    // Apply the decorations
-    if (editorRef.current) {
-      // Add global cursor styles if not already added
-      if (!document.getElementById('cursor-styles')) {
-        const style = document.createElement('style');
-        style.id = 'cursor-styles';
-        
-        // Generate styles for each user's cursor and selection
-        let userStyles = '';
-        Object.entries(userCursorsRef.current).forEach(([userId, cursor]) => {
-          const { color } = cursor;
-          userStyles += `
-            .cursor-${userId} {
-              background-color: ${color};
-              width: 2px !important;
-              margin-left: 0;
-              animation: blink 1s infinite;
-            }
-            .selection-${userId} {
-              background-color: ${color}30 !important;
-            }
-            .selection-inline-${userId} {
-              background-color: ${color}30 !important;
-            }
-          `;
-        });
-        
-        style.innerHTML = `
-          .cursor-decoration {
-            position: relative;
-          }
-          .cursor-line {
-            position: absolute;
-            width: 2px;
-            height: 18px;
-          }
-          .cursor-label {
-            position: absolute;
-            top: -18px;
-            left: 0;
-            background-color: #333;
-            color: white;
-            padding: 2px 4px;
-            border-radius: 2px;
-            font-size: 10px;
-            white-space: nowrap;
-            z-index: 100;
-          }
-          @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-          }
-          ${userStyles}
-        `;
-        document.head.appendChild(style);
-      }
-      
-      decorationsRef.current = editorRef.current.deltaDecorations(
-        decorationsRef.current,
-        decorations
-      );
-    }
-  };
+  }, [socketRef.current, userData, roomId, userColor]);
   
-  // Function to apply decorations for user contributions
-  const applyContributionDecorations = () => {
-    if (!editorRef.current || !selectedFile) return;
-    
-    const model = editorRef.current.getModel();
-    if (!model) return;
-    
-    const fileContributions = userContributionsRef.current[selectedFile] || {};
-    const decorations = [];
-    
-    // Add global contribution styles if not already added
-    if (!document.getElementById('contribution-styles')) {
-      const style = document.createElement('style');
-      style.id = 'contribution-styles';
-      
-      // Generate styles for each user's contributions
-      let contributionStyles = '';
-      Object.values(fileContributions).forEach(contribution => {
-        contributionStyles += `
-          .contribution-${contribution.userId} {
-            background-color: ${contribution.color}20 !important;
-            border-left: 4px solid ${contribution.color} !important;
-          }
-        `;
-      });
-      
-      style.innerHTML = contributionStyles;
-      document.head.appendChild(style);
-    }
-    
-    // Create decorations for each line based on who contributed it
-    Object.entries(fileContributions).forEach(([lineNumber, contribution]) => {
-      // Only add decoration if the line exists in the model
-      if (parseInt(lineNumber) + 1 <= model.getLineCount()) {
-        // Format the timestamp if it exists
-        let hoverMessage = `Contributed by: ${contribution.username}`;
-        if (contribution.timestamp) {
-          const date = new Date(contribution.timestamp);
-          const formattedDate = date.toLocaleDateString();
-          const formattedTime = date.toLocaleTimeString();
-          hoverMessage += `\nModified: ${formattedDate} at ${formattedTime}`;
-        }
-        
-        decorations.push({
-          range: new monaco.Range(
-            parseInt(lineNumber) + 1,
-            1,
-            parseInt(lineNumber) + 1,
-            model.getLineLength(parseInt(lineNumber) + 1) + 1
-          ),
-          options: {
-            isWholeLine: true,
-            className: `contribution-${contribution.userId}`,
-            hoverMessage: { value: hoverMessage }
-          }
-        });
-      }
-    });
-    
-    // Apply the decorations
-    if (editorRef.current) {
-      editorRef.current.deltaDecorations([], decorations);
-    }
-  };
 
   const handleClone = async () => {
     try {
@@ -513,10 +250,7 @@ const CodingInterface = () => {
           userContributionsRef.current[filePath] = {};
         }
         
-        // Apply decorations for user contributions
-        setTimeout(() => {
-          applyContributionDecorations();
-        }, 100);
+
       })
       .catch((err) => console.error("Error loading file:", err));
   };
@@ -586,48 +320,6 @@ const CodingInterface = () => {
     `;
     document.head.appendChild(style);
   };
-
-  const handleCodeChange = (value) => {
-    // Don't update if the value hasn't changed
-    if (value === code) return;
-    
-    setCode(value);
-    
-    // Send code changes to server via socket
-    if (socketRef.current && userData && roomId && selectedFile) {
-      socketRef.current.emit('code-change', {
-        roomId,
-        changes: value,
-        filename: selectedFile
-      });
-      
-      // Initialize contributions for this file if needed
-      if (!userContributionsRef.current[selectedFile]) {
-        userContributionsRef.current[selectedFile] = {};
-      }
-      
-      // Find which lines were modified by comparing with previous code
-      const oldLines = code.split('\n');
-      const newLines = value.split('\n');
-      
-      // Only track lines that have changed
-      newLines.forEach((line, index) => {
-        if (index >= oldLines.length || line !== oldLines[index]) {
-          userContributionsRef.current[selectedFile][index] = {
-            userId: userData.id,
-            username: userData.name,
-            color: userColor,
-            timestamp: Date.now() // Add timestamp to track when the change was made
-          };
-        }
-      });
-      
-      // Apply decorations for user contributions
-      setTimeout(() => {
-        applyContributionDecorations();
-      }, 10);
-    }
-  };
   
   const handleSendMessage = () => {
     if (!newMessage.trim() || !socketRef.current || !userData || !roomId) return;
@@ -684,7 +376,6 @@ const CodingInterface = () => {
               </div>
               <MainEditor 
                 code={code} 
-                onChange={handleCodeChange} 
                 onMount={handleEditorDidMount}
               />
             </div>
