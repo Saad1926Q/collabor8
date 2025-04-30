@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -39,11 +39,11 @@ const SignUp = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#0D1117]">
       <form onSubmit={handleSubmit} className="bg-[#161B22] p-8 rounded-2xl shadow-lg w-[400px]">
-        <h2 className="text-center text-blue-400 text-2xl font-bold">LOGO</h2>
+        <h2 className="text-center text-blue-400 text-2xl font-bold">Collabor8</h2>
         <h1 className="text-white text-2xl font-semibold text-center mt-4">Create Account</h1>
         
         {error && (
-          <div className="bg-red-500 bg-opacity-20 border border-red-500 text-red-500 px-4 py-2 rounded-lg mb-4 mt-4">
+          <div className="bg-red-500 bg-opacity-20 border border-red-500 text-orange-100 px-4 py-2 rounded-lg mb-4 mt-4">
             {error}
           </div>
         )}
@@ -104,7 +104,7 @@ const SignUp = () => {
 
         <p className="text-gray-400 text-center mt-4">
           Already have an account?{" "}
-          <Link to="/" className="text-blue-400 cursor-pointer hover:underline">
+          <Link to="/login" className="text-blue-400 cursor-pointer hover:underline">
             Sign In
           </Link>
         </p>

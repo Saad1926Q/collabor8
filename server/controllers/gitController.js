@@ -123,6 +123,61 @@ const getRepoStructure = async (req, res) => {
   }
 };
 
+const writeFileContent = async (req, res) => {
+  try {
+    const { filePath, content } = req.body;
+    const userId = req.user.userId;
+    const roomId = req.params.roomId;
+
+    if (!filePath || typeof content !== 'string') {
+      return res.status(400).json({ error: "filePath and content are required" });
+    }
+
+    // Verify access to room
+    const roomMember = await RoomMember.findOne({
+      where: {
+        room_id: roomId,
+        user_id: userId
+      }
+    });
+
+    if (!roomMember) {
+      return res.status(403).json({ error: "You don't have access to this room" });
+    }
+
+    const room = await Room.findByPk(roomId);
+    if (!room) {
+      return res.status(404).json({ error: "Room not found" });
+    }
+
+    const repoName = room.name;
+    const leaderDir = path.resolve(__dirname, "../cloned_repos", `${room.leader_id}_${repoName}`);
+    // const targetDir = path.resolve(__dirname, "../cloned_repos", `${userId}_${repoName}`);
+    let targetDir = path.resolve(__dirname, "../cloned_repos", `${userId}_${repoName}`);
+
+
+    if (!fs.existsSync(targetDir) && fs.existsSync(leaderDir)) {
+      targetDir = leaderDir;
+    }
+
+    if (!fs.existsSync(targetDir)) {
+      return res.status(404).json({ error: "Repository not found" });
+    }
+
+    const fileFullPath = path.join(targetDir, filePath);
+
+    // Ensure parent directories exist
+    fs.mkdirSync(path.dirname(fileFullPath), { recursive: true });
+
+    // Write content to file (create if doesn't exist)
+    fs.writeFileSync(fileFullPath, content, "utf-8");
+
+    res.json({ message: "File written successfully" });
+  } catch (error) {
+    console.error("Failed to write file content:", error);
+    res.status(500).json({ error: "Failed to write file content" });
+  }
+};
 
 const getFileContent = async (req, res) => {
   try {
@@ -183,4 +238,4 @@ const getFileContent = async (req, res) => {
   }
 };
 
-export { cloneRepo, getRepoStructure, getFileContent };
+export { cloneRepo, getRepoStructure, getFileContent, writeFileContent };

@@ -8,7 +8,7 @@ export default function Hero()
                 Collabor8 is a real-time collaborative code editor that empowers developers to work seamlessly on coding projects.
             </p>
             <a
-                href="#features"
+                href="/login"
                 className="px-6 py-3 bg-blue-600 rounded-full text-white text-lg shadow-lg hover:bg-blue-700"
             >
                 Get Started

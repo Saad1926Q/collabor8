@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -66,20 +66,20 @@ const Login = () => {
     <div className="flex justify-center items-center min-h-screen bg-[#0D1117]">
       <div className="bg-[#161B22] p-8 rounded-2xl shadow-lg w-[400px]">
         {/* Logo */}
-        <h2 className="text-center text-blue-400 text-2xl font-bold">LOGO</h2>
+        <h2 className="text-center text-blue-400 text-2xl font-bold">Collabor8</h2>
 
         {/* Heading */}
-        <h1 className="text-white text-2xl font-semibold text-center mt-4">CodeCollab</h1>
+        {/* <h1 className="text-white text-2xl font-semibold text-center mt-4">CodeCollab</h1> */}
         <p className="text-gray-400 text-center mb-6">Collaborative Code Editor</p>
 
         {error && (
-          <div className="bg-red-500 bg-opacity-20 border border-red-500 text-red-500 px-4 py-2 rounded-lg mb-4">
+          <div className="bg-red-500 bg-opacity-20 border border-red-500 text-orange-200 px-4 py-2 rounded-lg mb-4">
             {error}
           </div>
         )}
 
         {successMessage && (
-          <div className="bg-green-500 bg-opacity-20 border border-green-500 text-green-500 px-4 py-2 rounded-lg mb-4">
+          <div className="bg-green-500 bg-opacity-20 border border-green-500 text-cyan-200 px-4 py-2 rounded-lg mb-4">
             {successMessage}
           </div>
         )}
@@ -149,17 +149,12 @@ const Login = () => {
             >
               {isLoading ? "Signing In..." : "Sign In"}
             </button>
-
-            {/* Forgot Password */}
-            <p className="text-sm text-blue-400 text-center mt-2 cursor-pointer hover:underline" onClick={() => setForgotPasswordMode(true)}>
-              Forgot password?
-            </p>
           </form>
         )}
 
         {/* Sign Up Link */}
         <p className="text-gray-400 text-center mt-4">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link to="/signup" className="text-blue-400 cursor-pointer hover:underline">
             Sign up
           </Link>

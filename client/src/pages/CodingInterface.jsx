@@ -47,6 +47,37 @@ const CodingInterface = () => {
   const [userData, setUserData] = useState(null);
   const [userColor, setUserColor] = useState(getRandomColor());
 
+  const handleCommit = async () => {
+    if (!selectedFile) {
+      alert("No file selected to commit.");
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem("token");
+  
+      const response = await axios.post(
+        `http://localhost:5001/api/git/write/${roomId}`,
+        {
+          filePath: selectedFile,
+          content: code
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+  
+      alert(response.data.message || "File saved successfully!");
+    } catch (error) {
+      console.error("Error writing file:", error);
+      console.log(error);
+      alert(error.response?.data?.error || "Failed to save file.");
+    }
+  };
+  
   // Initialize socket connection
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -92,6 +123,9 @@ const CodingInterface = () => {
 
       fetchRoomInfo();
     }
+
+    
+    
 
   // Fetch repository structure
   const fetchRepoStructure = async () => {
@@ -652,23 +686,15 @@ const CodingInterface = () => {
                 {selectedFile && (
                   <div className="ml-auto flex items-center">
                     <span className="text-xs text-gray-400 mr-2">Collaborating with {Object.keys(userColorsRef.current).length} users</span>
-                    {userData && roomInfo && userData.id === roomInfo.owner_id && (
-                      <button 
-                        className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1 rounded flex items-center"
-                        onClick={() => {
-                          // Commit functionality would go here
-                          const commitMessage = prompt("Enter commit message:");
-                          if (commitMessage) {
-                            alert(`Changes committed with message: ${commitMessage}`);
-                          }
-                        }}
-                      >
-                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 16 16">
-                          <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
-                        </svg>
-                        Commit Changes
-                      </button>
-                    )}
+                    <button 
+                      className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1 rounded flex items-center"
+                      onClick={handleCommit}
+                    >
+                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                      </svg>
+                      Save Changes
+                    </button>
                   </div>
                 )}
               </div>

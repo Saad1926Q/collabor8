@@ -205,7 +205,7 @@ const Dashboard = () => {
           <div className="bg-gray-800 p-4 rounded-lg shadow-md">
             <h3 className="text-lg font-bold">Joined Rooms</h3>
             <p className="text-2xl font-bold text-yellow-500">{stats.joinedProjects}</p>
-            <p className="text-gray-400 text-sm">Rooms you're part of</p>
+            <p className="text-gray-400 text-sm">Rooms you&apos;re part of</p>
           </div>
         </div>
 
@@ -222,7 +222,7 @@ const Dashboard = () => {
             </div>
           ) : projects.length === 0 ? (
             <div className="bg-gray-800 p-6 rounded-lg text-center">
-              <p className="text-gray-400 mb-4">You don't have any projects yet.</p>
+              <p className="text-gray-400 mb-4">You don&apos;t have any projects yet.</p>
               <button 
                 onClick={() => navigate("/rooms")} 
                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"

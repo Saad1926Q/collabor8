@@ -16,8 +16,8 @@ const Settings = () => {
   const [password, setPassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
+  // const [notifications, setNotifications] = useState(true);
+  // const [darkMode, setDarkMode] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
@@ -127,7 +127,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
+    <main className="flex h-screen bg-gray-900 text-white">
       {/* Sidebar */}
       <aside className="w-1/5 bg-gray-800 p-4 border-r border-gray-700">
         <a href="/" className="text-xl font-bold mb-8 block">Collabor8</a>
@@ -220,37 +220,7 @@ const Settings = () => {
                   </button>
                 </form>
               </div>
-            </div>
-
-            {/* Preferences Section */}
-            <div className="bg-gray-800 p-6 rounded-lg shadow-md mb-6">
-              <h3 className="text-lg font-bold mb-4">Preferences</h3>
-              <div className="flex justify-between items-center mb-4">
-                <span>Email Notifications</span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={notifications}
-                    onChange={() => setNotifications(!notifications)}
-                    className="sr-only peer" 
-                  />
-                  <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Dark Mode</span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={darkMode}
-                    onChange={() => setDarkMode(!darkMode)}
-                    className="sr-only peer" 
-                  />
-                  <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
-            </div>
-            
+            </div> 
             {/* Danger Zone */}
             <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-red-500">
               <h3 className="text-lg font-bold mb-4 text-red-500">Danger Zone</h3>
@@ -328,7 +298,7 @@ const Settings = () => {
           </div>
         )}
       </main>
-    </div>
+    </main>
   );
 };
 

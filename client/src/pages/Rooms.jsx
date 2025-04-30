@@ -168,27 +168,6 @@ const Rooms = () => {
     }
   };
 
-  const handleLeaveRoom = async (roomId) => {
-    if (!confirm("Are you sure you want to leave this room?")) return;
-    
-    try {
-      const token = localStorage.getItem("token");
-      
-      const response = await axios.post(`http://localhost:5001/api/rooms/${roomId}/leave`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      if (response.status === 200) {
-        fetchRooms();
-      }
-    } catch (error) {
-      console.error("Error leaving room:", error);
-      setError("Failed to leave room");
-    }
-  };
-
   const extractRepoName = (url) => {
     if (!url) return "";
     
@@ -291,7 +270,7 @@ const Rooms = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-500 bg-opacity-20 border border-red-500 text-red-500 px-4 py-2 rounded-lg mb-6">
+          <div className="bg-red-500 bg-opacity-20 border border-red-500 text-yellow-50 px-4 py-2 rounded-lg mb-6">
             {error}
           </div>
         )}
@@ -319,15 +298,7 @@ const Rooms = () => {
                     >
                       ✕
                     </button>
-                  ) : (
-                    <button 
-                      onClick={() => handleLeaveRoom(room.id)}
-                      className="text-yellow-500 hover:text-yellow-700"
-                      title="Leave Room"
-                    >
-                      ⤴
-                    </button>
-                  )}
+                  ) : <></>}
                 </div>
                 
                 <p className="text-sm text-gray-400 mb-3 truncate">{room.repo_url}</p>
@@ -381,13 +352,13 @@ const Rooms = () => {
           <h2 className="text-xl font-semibold mb-4">Create a New Room</h2>
           
           {modalError && (
-            <div className="bg-red-500 bg-opacity-20 border border-red-500 text-red-500 px-4 py-2 rounded-lg mb-4">
+            <div className="bg-red-500 bg-opacity-20 border border-red-500 text-amber-100 px-4 py-2 rounded-lg mb-4">
               {modalError}
             </div>
           )}
           
           {modalSuccess && (
-            <div className="bg-green-500 bg-opacity-20 border border-green-500 text-green-500 px-4 py-2 rounded-lg mb-4">
+            <div className="bg-green-500 bg-opacity-20 border border-green-500 text-emerald-100 px-4 py-2 rounded-lg mb-4">
               {modalSuccess}
             </div>
           )}
